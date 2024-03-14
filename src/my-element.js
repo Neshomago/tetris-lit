@@ -30,7 +30,7 @@ export class MyElement extends LitElement {
     this.canvas = {}
     this.ctx = {}
     this.blockSize = 20
-    this.rows = 15
+    this.rows = 5
     this.cols = 8
     this.board = Array.from({length: this.rows}, () => Array(this.cols).fill(EMPTY))
     this.speed = 500
@@ -42,6 +42,7 @@ export class MyElement extends LitElement {
     this.level = 1
     this.currentPiece = this.generatePiece()
     this.gameInterval = null
+    this.isGameOver = false
   }
 
   connectedCallback() {
@@ -114,6 +115,7 @@ export class MyElement extends LitElement {
 
     if (this.isCollision(piece)) {
       clearInterval(this.gameInterval);
+      this.isGameOver = true;
       alert("GAME OVER Man! \n" + this.score)
     }
 
@@ -165,6 +167,19 @@ export class MyElement extends LitElement {
   gameLoop() {
     this.updateFrame()
     this.draw()
+  }
+
+  handleReset() {
+    this.isGameOver = false;
+    this.score = 0;
+    this.level = 1;
+    this.board = Array.from({length: this.rows}, () => Array(this.cols).fill(EMPTY));
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    clearInterval(this.gameInterval, this.speed);
+    this.gameInterval = setInterval(() => {
+      this.gameLoop();
+      this.requestUpdate();
+    }, this.speed); 
   }
 
   timeTemporaryIncrement(tempSpeed) {
@@ -248,9 +263,11 @@ export class MyElement extends LitElement {
     <div>
         <h1>${this.headerText}</h1>
         <div>Score: ${this.score}</div>
-        <canvas id="tetris-canvas"
-        ></canvas>
+        <canvas id="tetris-canvas"></canvas>
         <div>Level ${this.level}</div>
+        ${this.isGameOver 
+          ? html`<button @click="${this.handleReset}">Reset Game</button>` 
+          : ``}
     </div>
     <slot></slot>
     `
