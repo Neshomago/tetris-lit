@@ -44,6 +44,52 @@ export class MyElement extends LitElement {
     this.gameInterval = null
   }
 
+  connectedCallback() {
+    super.connectedCallback();
+    this.gameInterval = setInterval(() => {
+      this.gameLoop()
+      this.requestUpdate();
+    }, this.speed);
+    document.addEventListener('keydown' || 'click', (event) => { this.handleKeyDown(event) });
+    document.addEventListener('keyup', (event) => { this.handleKeyUp(event) });
+  }
+ 
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    clearInterval(this.gameInterval);
+    document.removeEventListener('keydown' || 'click', (event) => { this.handleKeyDown(event) });
+    document.removeEventListener('keyup', (event) => { this.handleKeyUp(event) });
+  }
+
+  handleKeyDown = (event) => {
+    event.stopPropagation();
+    const keyCode = event.key;
+    switch (keyCode) {
+      case 'ArrowUp':
+        this.rotate()
+        break;
+      case 'ArrowLeft':
+        this.move(-1)
+        break;
+      case 'ArrowRight':
+        this.move(1)
+        break;
+      case 'ArrowDown':
+        this.timeTemporaryIncrement(50)
+        break;
+      default:
+        break;
+    }
+  };
+
+  handleKeyUp = (event) => {
+    const keyCode = event.key;
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(keyCode)) {
+        if (keyCode === 'ArrowDown') this.timeTemporaryIncrement(this.speed);
+        console.log(`${keyCode} released`);
+      }
+  }
+
   firstUpdated() {
     super.firstUpdated();
    
@@ -98,6 +144,40 @@ export class MyElement extends LitElement {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.drawBoard()
     this.drawPiece()
+  }
+
+  updateFrame() {
+    this.currentPiece.y++;
+    if(this.isCollision(this.currentPiece)) {
+      this.currentPiece.y--;
+      this.solidifyPiece();
+      this.checkLines();
+      this.currentPiece = this.generatePiece();
+      this.requestUpdate();
+    }
+  }
+
+  gameLoop() {
+    this.updateFrame()
+    this.draw()
+  }
+
+  timeTemporaryIncrement(tempSpeed) {
+    clearInterval(this.gameInterval);
+    this.gameInterval = setInterval(() => {
+      this.gameLoop();
+      this.requestUpdate();
+    }, tempSpeed)
+  }
+
+  isCollision(piece) {
+    return piece.shape.some(
+      (row, i) =>
+        row.some(
+          (value, j) =>
+            value !== EMPTY && (this.board[piece.y + i] && this.board[piece.y +i][piece.x + j]) !== EMPTY
+      )
+    )
   }
 
   render() {
