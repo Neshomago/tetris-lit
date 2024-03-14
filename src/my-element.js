@@ -40,8 +40,33 @@ export class MyElement extends LitElement {
     //this.hitSound = './assets/hit.wav'
     //this.lineSound = './assets/line.wav'
     this.level = 1
-    this.currentPiece = ''
+    this.currentPiece = this.generatePiece()
     this.gameInterval = null
+  }
+
+  firstUpdated() {
+    super.firstUpdated();
+   
+    this.canvas = this.shadowRoot.querySelector("#tetris-canvas")
+    this.ctx = this.canvas.getContext("2d")
+    this.setupGame();
+  }
+
+  setupGame() {
+    this.canvas.width = this.cols * this.blockSize
+    this.canvas.height = this.rows * this.blockSize
+  }
+
+  generatePiece() {
+    const ramdonPiece = pieces[Math.floor(Math.random() * pieces.length)];
+    const piece = {
+      shape: ramdonPiece.shape,
+      color: ramdonPiece.color,
+      x: Math.floor(this.cols / 2) - Math.floor(ramdonPiece.shape[0].length / 2),
+      y: 0,
+    }
+
+    return piece
   }
 
   render() {
