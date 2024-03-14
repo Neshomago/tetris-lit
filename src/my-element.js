@@ -112,6 +112,11 @@ export class MyElement extends LitElement {
       y: 0,
     }
 
+    if (this.isCollision(piece)) {
+      clearInterval(this.gameInterval);
+      alert("GAME OVER Man! \n" + this.score)
+    }
+
     return piece
   }
 
@@ -178,6 +183,64 @@ export class MyElement extends LitElement {
             value !== EMPTY && (this.board[piece.y + i] && this.board[piece.y +i][piece.x + j]) !== EMPTY
       )
     )
+  }
+
+  rotate() {
+    const rotatedPiece = {
+      shape: this.currentPiece.shape[0].map((_, i) => this.currentPiece.shape.map(row => row[i])).reverse(),
+      color: this.currentPiece.color,
+      x: this.currentPiece.x,
+      y: this.currentPiece.y,
+    }
+
+    if (!this.isCollision(rotatedPiece)) {
+      this.currentPiece.shape = rotatedPiece.shape
+    }
+  }
+
+  solidifyPiece() {
+    this.currentPiece.shape.forEach((row, i) => {
+    row.forEach((value, j) => {
+        if (value !== EMPTY) {
+        this.board[this.currentPiece.y + i][this.currentPiece.x + j] = this.currentPiece.color;
+        }
+    });
+    });
+    //this.soundPlayer(this.hitSound);
+  }
+
+  move(direction) {
+    this.currentPiece.x += direction;
+    this.isCollision(this.currentPiece) ? this.currentPiece.x -= direction : 0
+  }
+
+  updateScoreAndLevel() {
+    if (this.score >= this.level * 500) {
+    this.level++;
+    this.speed -= 50; // decrease speed
+    clearInterval(this.gameInterval);
+    this.gameInterval = setInterval(this.gameLoop, this.speed);
+    }
+  }
+
+  checkLines() {
+    let linesToRemove = [];
+    for (let i = this.rows - 1; i >= 0; i--) {
+    if (this.board[i].every(block => block !== EMPTY)) {
+        linesToRemove.push(i);
+        this.score += 100;
+    }
+    }
+
+    linesToRemove.forEach(line => {
+    this.board.splice(line, 1);
+    this.board.unshift(Array(this.cols).fill(EMPTY));
+    });
+
+    if (linesToRemove.length > 0) {
+    this.updateScoreAndLevel();
+    //soundPlayer(this.lineSound);
+    }
   }
 
   render() {
