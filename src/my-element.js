@@ -69,6 +69,37 @@ export class MyElement extends LitElement {
     return piece
   }
 
+  drawBoard() {
+    for (let row = 0; row < this.rows; row++) {
+      for (let col = 0; col < this.cols; col++) {
+        this.drawBlock(col, row, this.board[row][col])
+      }
+    }
+  }
+
+  drawPiece() {
+    this.currentPiece.shape.forEach((row, i) => {
+      row.forEach((value, j) => {
+        if (value !== EMPTY) {
+          this.drawBlock(this.currentPiece.x + j, this.currentPiece.y + i, this.currentPiece.color);
+        }
+      })
+    })
+  }
+
+  drawBlock(x, y, color) {
+    this.ctx.fillStyle = COLORS[color];
+    this.ctx.fillRect(x * this.blockSize, y * this.blockSize, this.blockSize, this.blockSize)
+    this.ctx.strokeStyle = "#333"
+    this.ctx.strokeRect(x * this.blockSize, y * this.blockSize, this.blockSize, this.blockSize)
+  }
+
+  draw() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.drawBoard()
+    this.drawPiece()
+  }
+
   render() {
     return html`
     <div>
