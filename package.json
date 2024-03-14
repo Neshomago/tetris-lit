@@ -1,14 +1,27 @@
 {
   "name": "tetris-lit",
-  "private": true,
-  "version": "0.0.0",
+  "description": "A simple Tetris Lit Component",
+  "author": {
+    "name": "Andres Torres",
+    "email": "magoyde@gmail.com"
+  },
+  "private": false,
+  "version": "1.0.0",
   "type": "module",
+  "main": "dist/tetris-lit.js",
+  "keywords": [
+    "lit",
+    "component",
+    "tetris",
+    "loader"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@lit/reactive-element": "^2.0.4",
     "lit": "^3.1.2"
   },
   "devDependencies": {
